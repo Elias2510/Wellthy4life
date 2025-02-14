@@ -1,4 +1,4 @@
-package com.example.Wellthy4life;
+package com.example.wellthy4life;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
