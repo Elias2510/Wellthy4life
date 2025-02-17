@@ -24,7 +24,7 @@ public class UserService {
 
     @Transactional
     public String registerUser(UserDTO userDTO) {
-        // Verificăm dacă rolul există
+
         Optional<Role> optionalRole = roleRepository.findByName(userDTO.getRoleName());
 
         if (optionalRole.isEmpty()) {
@@ -33,7 +33,7 @@ public class UserService {
 
         Role role = optionalRole.get();
 
-        // Creăm utilizatorul
+
         User user = new User();
         user.setFullName(userDTO.getFullName());
         user.setEmail(userDTO.getEmail());

@@ -1,16 +1,16 @@
 package com.example.wellthy4life;
 
-import com.example.wellthy4life.models.Role;
+import com.example.wellthy4life.models.Analysis;
+import com.example.wellthy4life.models.Recommendation;
 import com.example.wellthy4life.models.User;
-import com.example.wellthy4life.repositories.RoleRepository;
+import com.example.wellthy4life.repositories.AnalysisRepository;
+import com.example.wellthy4life.repositories.RecommendationRepository;
 import com.example.wellthy4life.repositories.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Optional;
-import java.util.Set;
-import java.util.HashSet;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -18,35 +18,35 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class Wellthy4lifeApplicationTests {
 
 	@Autowired
-	private RoleRepository roleRepository;
-
-	@Autowired
 	private UserRepository userRepository;
 
+	@Autowired
+	private AnalysisRepository analysisRepository;
+
+	@Autowired
+	private RecommendationRepository recommendationRepository;
+
 	@Test
-	public void testCreateUserWithRole() {
-		// Verificăm dacă rolul USER există
-		Optional<Role> optionalRole = roleRepository.findByName("ADMIN");
-		assertThat(optionalRole).isPresent();
-		Role userRole = optionalRole.get();
+	public void testSimulateAddingRecommendationForUser() {
 
-		// Creăm un nou utilizator
-		User user = new User();
-		user.setFullName("Elias Milosi");
-		user.setEmail("jeliasmilosi2002@gmail.com");
-		user.setPassword("elias123");
+		String userEmail = "john.doe@example.com";
+		Optional<User> optionalUser = Optional.ofNullable(userRepository.findByEmail(userEmail));
+		assertThat(optionalUser).isPresent();
+		User user = optionalUser.get();
 
-		// Asociem rolul USER cu utilizatorul
-		Set<Role> roles = new HashSet<>();
-		roles.add(userRole);
-		user.setRoles(roles);
 
-		// Salvăm utilizatorul
-		User savedUser = userRepository.save(user);
+		Optional<Analysis> optionalAnalysis = analysisRepository.findByUserId(user.getId()).stream().findFirst();
+		assertThat(optionalAnalysis).isPresent();
+		Analysis analysis = optionalAnalysis.get();
 
-		assertThat(savedUser).isNotNull();
-		assertThat(savedUser.getId()).isGreaterThan(0);
-		assertThat(savedUser.getRoles()).isNotEmpty();
-		System.out.println("User " + savedUser.getFullName() + " created with role: " + userRole.getName());
+
+		Recommendation recommendation = new Recommendation();
+		recommendation.setUser(user);
+		recommendation.setAnalysis(analysis);
+		recommendation.setRecommendationText("Este recomandat să verificați nivelul de colesterol lunar.");
+		recommendationRepository.save(recommendation);
+
+		assertThat(recommendationRepository.findByUserId(user.getId())).isNotEmpty();
+		System.out.println("Recommendation added for user: " + user.getFullName());
 	}
 }
