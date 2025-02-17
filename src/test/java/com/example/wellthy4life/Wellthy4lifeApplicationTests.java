@@ -1,10 +1,12 @@
 package com.example.wellthy4life;
 
-import com.example.wellthy4life.models.User;
-import com.example.wellthy4life.repositories.UserRepository;
+import com.example.wellthy4life.models.Role;
+import com.example.wellthy4life.repositories.RoleRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -12,19 +14,28 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class Wellthy4lifeApplicationTests {
 
 	@Autowired
-	private UserRepository userRepository;
+	private RoleRepository roleRepository;
 
 	@Test
-	public void testCreateUser() {
-		User user = new User();
-		user.setFullName("Ion Popescu");
-		user.setEmail("ion.popescu@example.com");
-		user.setPassword("parola123");
-		user.setBirthDate(java.time.LocalDateTime.of(1990, 1, 1, 0, 0, 0, 0));
+	public void testCreateRoles() {
+		// Listă de roluri de creat
+		String[] roleNames = {"USER", "DOCTOR"};
 
-		User savedUser = userRepository.save(user);
+		for (String roleName : roleNames) {
+			Optional<Role> existingRole = roleRepository.findByName(roleName);
 
-		assertThat(savedUser).isNotNull();
-		assertThat(savedUser.getId()).isGreaterThan(0);
+			if (existingRole.isEmpty()) {
+				Role role = new Role();
+				role.setName(roleName);
+
+				Role savedRole = roleRepository.save(role);
+
+				assertThat(savedRole).isNotNull();
+				assertThat(savedRole.getId()).isGreaterThan(0);
+				System.out.println("Role " + roleName + " added with ID: " + savedRole.getId());
+			} else {
+				System.out.println("Role already exists: " + roleName);
+			}
+		}
 	}
 }
