@@ -26,4 +26,17 @@ public class RecommendationController {
     public ResponseEntity<List<RecommendationDTO>> getUserRecommendations(@PathVariable Long userId) {
         return ResponseEntity.ok(recommendationService.getUserRecommendations(userId));
     }
+
+    @PutMapping("/update/{id}")
+    public ResponseEntity<RecommendationDTO> updateRecommendation(@PathVariable Long id, @RequestBody RecommendationDTO dto) {
+        Recommendation updatedRecommendation = recommendationService.updateRecommendation(id, dto);
+        RecommendationDTO responseDto = new RecommendationDTO(updatedRecommendation.getUser().getId(), updatedRecommendation.getAnalysis().getId(), updatedRecommendation.getRecommendationText());
+        return ResponseEntity.ok(responseDto);
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Void> deleteRecommendation(@PathVariable Long id) {
+        recommendationService.deleteRecommendation(id);
+        return ResponseEntity.noContent().build();
+    }
 }

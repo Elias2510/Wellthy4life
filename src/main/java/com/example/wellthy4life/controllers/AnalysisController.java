@@ -16,12 +16,20 @@ public class AnalysisController {
     private AnalysisService analysisService;
 
     @PostMapping("/add")
-    public ResponseEntity<Analysis> addAnalysis(@RequestBody AnalysisDTO dto) {
-        return ResponseEntity.ok(analysisService.addAnalysis(dto));
+    public ResponseEntity<AnalysisDTO> addAnalysis(@RequestBody AnalysisDTO dto) {
+        Analysis analysis = analysisService.addAnalysis(dto);
+        return ResponseEntity.ok(new AnalysisDTO(analysis.getUser().getId(), analysis.getTestName(), analysis.getValue(), analysis.getUnit(), analysis.getNormalMin(), analysis.getNormalMax(), analysis.getTestDate()));
     }
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<AnalysisDTO>> getUserAnalyses(@PathVariable Long userId) {
-        return ResponseEntity.ok(analysisService.getUserAnalyses(userId));
+    @PutMapping("/update/{id}")
+    public ResponseEntity<AnalysisDTO> updateAnalysis(@PathVariable Long id, @RequestBody AnalysisDTO dto) {
+        Analysis updatedAnalysis = analysisService.updateAnalysis(id, dto);
+        return ResponseEntity.ok(new AnalysisDTO(updatedAnalysis.getUser().getId(), updatedAnalysis.getTestName(), updatedAnalysis.getValue(), updatedAnalysis.getUnit(), updatedAnalysis.getNormalMin(), updatedAnalysis.getNormalMax(), updatedAnalysis.getTestDate()));
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Void> deleteAnalysis(@PathVariable Long id) {
+        analysisService.deleteAnalysis(id);
+        return ResponseEntity.noContent().build();
     }
 }

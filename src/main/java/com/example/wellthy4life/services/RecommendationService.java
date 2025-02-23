@@ -41,4 +41,19 @@ public class RecommendationService {
                 .map(r -> new RecommendationDTO(r.getUser().getId(), r.getAnalysis().getId(), r.getRecommendationText()))
                 .collect(Collectors.toList());
     }
+
+    public Recommendation updateRecommendation(Long id, RecommendationDTO dto) {
+        Recommendation recommendation = recommendationRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Recommendation not found"));
+
+        recommendation.setRecommendationText(dto.getRecommendationText());
+        return recommendationRepository.save(recommendation);
+    }
+
+    public void deleteRecommendation(Long id) {
+        if (!recommendationRepository.existsById(id)) {
+            throw new RuntimeException("Recommendation not found");
+        }
+        recommendationRepository.deleteById(id);
+    }
 }
