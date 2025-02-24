@@ -12,24 +12,49 @@ import java.util.List;
 @RequestMapping("/api/analyses")
 @CrossOrigin(origins = "http://localhost:3000")
 public class AnalysisController {
+
     @Autowired
     private AnalysisService analysisService;
 
     @PostMapping("/add")
     public ResponseEntity<AnalysisDTO> addAnalysis(@RequestBody AnalysisDTO dto) {
         Analysis analysis = analysisService.addAnalysis(dto);
-        return ResponseEntity.ok(new AnalysisDTO(analysis.getUser().getId(), analysis.getTestName(), analysis.getValue(), analysis.getUnit(), analysis.getNormalMin(), analysis.getNormalMax(), analysis.getTestDate()));
+        return ResponseEntity.ok(new AnalysisDTO(
+                analysis.getUser().getId(),
+                analysis.getTestName(),
+                analysis.getValue(),
+                analysis.getUnit(),
+                analysis.getNormalMin(),
+                analysis.getNormalMax(),
+                analysis.getTestDate()));
     }
 
     @PutMapping("/update/{id}")
     public ResponseEntity<AnalysisDTO> updateAnalysis(@PathVariable Long id, @RequestBody AnalysisDTO dto) {
         Analysis updatedAnalysis = analysisService.updateAnalysis(id, dto);
-        return ResponseEntity.ok(new AnalysisDTO(updatedAnalysis.getUser().getId(), updatedAnalysis.getTestName(), updatedAnalysis.getValue(), updatedAnalysis.getUnit(), updatedAnalysis.getNormalMin(), updatedAnalysis.getNormalMax(), updatedAnalysis.getTestDate()));
+        return ResponseEntity.ok(new AnalysisDTO(
+                updatedAnalysis.getUser().getId(),
+                updatedAnalysis.getTestName(),
+                updatedAnalysis.getValue(),
+                updatedAnalysis.getUnit(),
+                updatedAnalysis.getNormalMin(),
+                updatedAnalysis.getNormalMax(),
+                updatedAnalysis.getTestDate()));
     }
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteAnalysis(@PathVariable Long id) {
         analysisService.deleteAnalysis(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // (Opțional) Endpoint pentru listarea analizelor unui utilizator:
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<AnalysisDTO>> getAnalysesByUser(@PathVariable Long userId) {
+        List<Analysis> analyses = analysisService.getAnalysesByUser(userId);
+        List<AnalysisDTO> dtoList = analyses.stream().map(a ->
+                new AnalysisDTO(a.getUser().getId(), a.getTestName(), a.getValue(), a.getUnit(), a.getNormalMin(), a.getNormalMax(), a.getTestDate())
+        ).toList();
+        return ResponseEntity.ok(dtoList);
     }
 }

@@ -38,7 +38,6 @@ public class User {
 
     public User() {}
 
-
     public User(String fullName, String email, String password, LocalDate birthDate, Set<Role> roles) {
         this.fullName = fullName;
         this.email = email;
