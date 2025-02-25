@@ -21,16 +21,24 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    private final CorsConfigurationSource corsConfigurationSource;
+
+    public SecurityConfig(CorsConfigurationSource corsConfigurationSource) {
+        this.corsConfigurationSource = corsConfigurationSource;
+    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())  // Dezactivează protecția CSRF pentru API
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))  // Activează CORS
+                .csrf(csrf -> csrf.disable()) // Dezactivează protecția CSRF pentru simplitate; în producție, gestionează CSRF corespunzător
+                .cors(cors -> cors.configurationSource(corsConfigurationSource)) // Activează CORS
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/auth/**").permitAll()  // Permite login fără autentificare
-                        .requestMatchers("/api/users/register").permitAll()  // Permite înregistrarea
-                        .anyRequest().authenticated()  // Restul request-urilor necesită autentificare
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Permite toate cererile OPTIONS
+                        .requestMatchers("/auth/**", "/api/users/register").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/api/analyses/**").permitAll()
+
+                        // Permite accesul fără autentificare la aceste endpoint-uri
+                        .anyRequest().authenticated() // Solicită autentificare pentru orice altă cerere
                 )
                 .addFilterBefore(jwtAuthenticationFilter(), org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
 
@@ -43,22 +51,14 @@ public class SecurityConfig {
     }
 
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000"));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("*"));
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
-
-    @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
     }
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
+
 }

@@ -5,8 +5,14 @@ import com.example.wellthy4life.models.Analysis;
 import com.example.wellthy4life.models.User;
 import com.example.wellthy4life.repositories.AnalysisRepository;
 import com.example.wellthy4life.repositories.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -53,7 +59,11 @@ public class AnalysisServiceImpl implements AnalysisService {
 
     @Override
     public void deleteAnalysis(Long id) {
-        analysisRepository.deleteById(id);
+        if (analysisRepository.existsById(id)) {
+            analysisRepository.deleteById(id);
+        } else {
+            throw new EntityNotFoundException("Analiza nu a fost găsită.");
+        }
     }
 
     @Override

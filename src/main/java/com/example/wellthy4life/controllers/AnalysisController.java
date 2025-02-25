@@ -7,10 +7,14 @@ import com.example.wellthy4life.repositories.AnalysisRepository;
 import com.example.wellthy4life.repositories.UserRepository;
 import com.example.wellthy4life.services.AnalysisService;
 import com.example.wellthy4life.util.JWTUtil;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -41,7 +45,7 @@ public class AnalysisController {
         }
 
         Analysis analysis = new Analysis();
-        analysis.setUser(user); // Asociem analiza cu utilizatorul conectat
+        analysis.setUser(user);
         analysis.setTestName(dto.getTestName());
         analysis.setValue(dto.getValue());
         analysis.setUnit(dto.getUnit());
@@ -55,7 +59,6 @@ public class AnalysisController {
                 analysis.getUnit(), analysis.getNormalMin(), analysis.getNormalMax(), analysis.getTestDate()));
     }
 
-
     @PutMapping("/update/{id}")
     public ResponseEntity<AnalysisDTO> updateAnalysis(@PathVariable Long id, @RequestBody AnalysisDTO dto) {
         Analysis updatedAnalysis = analysisService.updateAnalysis(id, dto);
@@ -67,12 +70,6 @@ public class AnalysisController {
                 updatedAnalysis.getNormalMin(),
                 updatedAnalysis.getNormalMax(),
                 updatedAnalysis.getTestDate()));
-    }
-
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> deleteAnalysis(@PathVariable Long id) {
-        analysisService.deleteAnalysis(id);
-        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/user/{userId}")
@@ -103,6 +100,32 @@ public class AnalysisController {
                 .toList();
 
         return ResponseEntity.ok(analysisDTOs);
+    }
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Void> deleteAnalysis(@PathVariable Long id) {
+        try {
+            analysisService.deleteAnalysis(id);
+            return ResponseEntity.noContent().build();
+        } catch (ResponseStatusException e) {
+            return ResponseEntity.status(e.getStatusCode()).build();
+        }
+    }
+    @GetMapping("/{id}")
+    public ResponseEntity<AnalysisDTO> getAnalysisById(@PathVariable Long id) {
+        Analysis analysis = analysisRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Analiza nu a fost găsită"));
+
+        AnalysisDTO analysisDTO = new AnalysisDTO(
+                analysis.getUser().getId(),
+                analysis.getTestName(),
+                analysis.getValue(),
+                analysis.getUnit(),
+                analysis.getNormalMin(),
+                analysis.getNormalMax(),
+                analysis.getTestDate()
+        );
+
+        return ResponseEntity.ok(analysisDTO);
     }
 
 }
