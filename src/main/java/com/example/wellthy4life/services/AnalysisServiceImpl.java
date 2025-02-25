@@ -7,6 +7,7 @@ import com.example.wellthy4life.repositories.AnalysisRepository;
 import com.example.wellthy4life.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 
 @Service
@@ -20,18 +21,17 @@ public class AnalysisServiceImpl implements AnalysisService {
 
     @Override
     public Analysis addAnalysis(AnalysisDTO dto) {
+        User user = userRepository.findById(dto.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
         Analysis analysis = new Analysis();
+        analysis.setUser(user);
         analysis.setTestName(dto.getTestName());
         analysis.setValue(dto.getValue());
         analysis.setUnit(dto.getUnit());
         analysis.setNormalMin(dto.getNormalMin());
         analysis.setNormalMax(dto.getNormalMax());
         analysis.setTestDate(dto.getTestDate());
-
-        // Căutăm utilizatorul după id; dacă nu există, aruncăm o excepție
-        User user = userRepository.findById(dto.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        analysis.setUser(user);
 
         return analysisRepository.save(analysis);
     }
@@ -40,12 +40,14 @@ public class AnalysisServiceImpl implements AnalysisService {
     public Analysis updateAnalysis(Long id, AnalysisDTO dto) {
         Analysis analysis = analysisRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Analysis not found"));
+
         analysis.setTestName(dto.getTestName());
         analysis.setValue(dto.getValue());
         analysis.setUnit(dto.getUnit());
         analysis.setNormalMin(dto.getNormalMin());
         analysis.setNormalMax(dto.getNormalMax());
         analysis.setTestDate(dto.getTestDate());
+
         return analysisRepository.save(analysis);
     }
 
