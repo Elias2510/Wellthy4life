@@ -15,6 +15,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -71,6 +72,33 @@ public class AnalysisController {
                 updatedAnalysis.getNormalMax(),
                 updatedAnalysis.getTestDate()));
     }
+    @PostMapping("/upload-pdf")
+    public ResponseEntity<String> uploadPdf(@RequestParam("file") MultipartFile file,
+                                            @RequestHeader("Authorization") String token) {
+        try {
+            String email = jwtUtil.getUsernameFromToken(token.replace("Bearer ", ""));
+            User user = userRepository.findByEmail(email);
+
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+
+            analysisService.processPdfAndSave(file, user);
+            return ResponseEntity.ok("PDF procesat cu succes.");
+        } catch (RuntimeException ex) {
+            if (ex.getMessage().startsWith("PROCESARE_OK")) {
+                String[] parts = ex.getMessage().split("\\|");
+                int added = Integer.parseInt(parts[1]);
+                int ignored = Integer.parseInt(parts[2]);
+
+                return ResponseEntity.ok("PDF procesat cu succes.\n- " + added + " analize adăugate\n- " + ignored + " linii ignorate");
+            }
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Eroare la procesarea PDF-ului.");
+        }
+    }
+
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<AnalysisDTO>> getAnalysesByUser(@PathVariable Long userId) {
@@ -124,6 +152,8 @@ public class AnalysisController {
                 analysis.getNormalMax(),
                 analysis.getTestDate()
         );
+
+
 
         return ResponseEntity.ok(analysisDTO);
     }

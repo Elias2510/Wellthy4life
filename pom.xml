@@ -92,7 +92,11 @@
 			<version>6.6.5.Final</version>
 		</dependency>
 
-
+		<dependency>
+			<groupId>org.apache.pdfbox</groupId>
+			<artifactId>pdfbox</artifactId>
+			<version>2.0.29</version>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -105,3 +109,5 @@
 		</plugins>
 	</build>
 </project>
+
+
