@@ -6,11 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
+@CrossOrigin(origins = "http://localhost:3000")
 public class AuthController {
 
     @Autowired
@@ -28,9 +30,17 @@ public class AuthController {
                             loginRequest.getPassword()
                     )
             );
+
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            String token = jwtUtil.generateToken((CustomUserDetails) authentication.getPrincipal());
-            return ResponseEntity.ok(new LoginResponse(token));
+            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+            String token = jwtUtil.generateToken(userDetails);
+
+            String role = userDetails.getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .findFirst()
+                    .orElse("USER");
+
+            return ResponseEntity.ok(new LoginResponse(token, role));
         } catch (BadCredentialsException e) {
             return ResponseEntity.status(401).body("Invalid email or password");
         }
@@ -41,7 +51,6 @@ class LoginRequest {
     private String email;
     private String password;
 
-    // Getters and setters
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
 
@@ -51,11 +60,16 @@ class LoginRequest {
 
 class LoginResponse {
     private String token;
+    private String role;
 
-    public LoginResponse(String token) {
+    public LoginResponse(String token, String role) {
         this.token = token;
+        this.role = role;
     }
 
     public String getToken() { return token; }
     public void setToken(String token) { this.token = token; }
+
+    public String getRole() { return role; }
+    public void setRole(String role) { this.role = role; }
 }
