@@ -4,6 +4,7 @@ import com.example.wellthy4life.dto.UserDTO;
 import com.example.wellthy4life.models.*;
 import com.example.wellthy4life.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +26,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public String registerUser(UserDTO userDTO) {
         if (userRepository.findByEmail(userDTO.getEmail()) != null) {
-            throw new RuntimeException("Email is already in use.");
+            throw new RuntimeException("Adresa de email este deja utilizată.");
         }
 
         User user = new User();
