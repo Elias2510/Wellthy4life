@@ -23,6 +23,7 @@ public class RecommendationService {
     @Autowired
     private AnalysisRepository analysisRepository;
 
+
     public Recommendation addRecommendation(RecommendationDTO dto) {
         User user = userRepository.findById(dto.getUserId()).orElseThrow(() -> new RuntimeException("User not found"));
         Analysis analysis = analysisRepository.findById(dto.getAnalysisId()).orElseThrow(() -> new RuntimeException("Analysis not found"));
@@ -56,4 +57,5 @@ public class RecommendationService {
         }
         recommendationRepository.deleteById(id);
     }
+
 }

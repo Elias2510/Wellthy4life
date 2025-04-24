@@ -3,6 +3,7 @@ package com.example.wellthy4life.dto;
 import java.time.LocalDate;
 
 public class AnalysisDTO {
+    private Long id; // nou - ID-ul analizei
     private Long userId;
     private String testName;
     private double value;
@@ -13,7 +14,8 @@ public class AnalysisDTO {
 
     public AnalysisDTO() {}
 
-    public AnalysisDTO(Long userId, String testName, double value, String unit, Double normalMin, Double normalMax, LocalDate testDate) {
+    public AnalysisDTO(Long id, Long userId, String testName, double value, String unit, Double normalMin, Double normalMax, LocalDate testDate) {
+        this.id = id;
         this.userId = userId;
         this.testName = testName;
         this.value = value;
@@ -22,6 +24,9 @@ public class AnalysisDTO {
         this.normalMax = normalMax;
         this.testDate = testDate;
     }
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
     public Long getUserId() { return userId; }
     public void setUserId(Long userId) { this.userId = userId; }

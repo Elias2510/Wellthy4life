@@ -39,7 +39,7 @@ public class PatientController {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         List<AnalysisDTO> dtoList = analyses.stream()
-                .map(a -> new AnalysisDTO(
+                .map(a -> new AnalysisDTO( a.getId(),
                         a.getUser().getId(),
                         a.getTestName(),
                         a.getValue(),

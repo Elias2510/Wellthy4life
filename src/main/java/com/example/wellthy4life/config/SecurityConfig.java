@@ -1,3 +1,6 @@
+// Notification-related controller logic has been removed.
+// We'll handle recommendations directly in the dashboard context.
+
 package com.example.wellthy4life.config;
 
 import com.example.wellthy4life.security.JWTAuthenticationFilter;
@@ -30,15 +33,15 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // Dezactivează protecția CSRF pentru simplitate; în producție, gestionează CSRF corespunzător
-                .cors(cors -> cors.configurationSource(corsConfigurationSource)) // Activează CORS
+                .csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Permite toate cererile OPTIONS
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/auth/**", "/api/users/register").permitAll()
                         .requestMatchers(HttpMethod.PUT, "/api/analyses/**").permitAll()
-
-                        // Permite accesul fără autentificare la aceste endpoint-uri
-                        .anyRequest().authenticated() // Solicită autentificare pentru orice altă cerere
+                        .requestMatchers(HttpMethod.GET, "/api/analyses/user").hasAnyAuthority("USER", "DOCTOR")
+                        .requestMatchers(HttpMethod.GET, "/api/recommendations/user").hasAnyAuthority("USER", "DOCTOR")
+                        .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter(), org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
 
@@ -59,6 +62,4 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
-
 }

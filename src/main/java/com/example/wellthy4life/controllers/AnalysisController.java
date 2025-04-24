@@ -56,7 +56,7 @@ public class AnalysisController {
 
         analysisRepository.save(analysis);
 
-        return ResponseEntity.ok(new AnalysisDTO(user.getId(), analysis.getTestName(), analysis.getValue(),
+        return ResponseEntity.ok(new AnalysisDTO(analysis.getId(), user.getId(), analysis.getTestName(), analysis.getValue(),
                 analysis.getUnit(), analysis.getNormalMin(), analysis.getNormalMax(), analysis.getTestDate()));
     }
 
@@ -64,6 +64,7 @@ public class AnalysisController {
     public ResponseEntity<AnalysisDTO> updateAnalysis(@PathVariable Long id, @RequestBody AnalysisDTO dto) {
         Analysis updatedAnalysis = analysisService.updateAnalysis(id, dto);
         return ResponseEntity.ok(new AnalysisDTO(
+                updatedAnalysis.getId(),
                 updatedAnalysis.getUser().getId(),
                 updatedAnalysis.getTestName(),
                 updatedAnalysis.getValue(),
@@ -72,6 +73,7 @@ public class AnalysisController {
                 updatedAnalysis.getNormalMax(),
                 updatedAnalysis.getTestDate()));
     }
+
     @PostMapping("/upload-pdf")
     public ResponseEntity<String> uploadPdf(@RequestParam("file") MultipartFile file,
                                             @RequestHeader("Authorization") String token) {
@@ -99,12 +101,11 @@ public class AnalysisController {
         }
     }
 
-
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<AnalysisDTO>> getAnalysesByUser(@PathVariable Long userId) {
         List<Analysis> analyses = analysisService.getAnalysesByUser(userId);
         List<AnalysisDTO> dtoList = analyses.stream().map(a ->
-                new AnalysisDTO(a.getUser().getId(), a.getTestName(), a.getValue(), a.getUnit(), a.getNormalMin(), a.getNormalMax(), a.getTestDate())
+                new AnalysisDTO(a.getId(), a.getUser().getId(), a.getTestName(), a.getValue(), a.getUnit(), a.getNormalMin(), a.getNormalMax(), a.getTestDate())
         ).toList();
         return ResponseEntity.ok(dtoList);
     }
@@ -124,11 +125,12 @@ public class AnalysisController {
 
         List<Analysis> analyses = analysisRepository.findByUserId(user.getId());
         List<AnalysisDTO> analysisDTOs = analyses.stream()
-                .map(a -> new AnalysisDTO(a.getUser().getId(), a.getTestName(), a.getValue(), a.getUnit(), a.getNormalMin(), a.getNormalMax(), a.getTestDate()))
+                .map(a -> new AnalysisDTO(a.getId(), a.getUser().getId(), a.getTestName(), a.getValue(), a.getUnit(), a.getNormalMin(), a.getNormalMax(), a.getTestDate()))
                 .toList();
 
         return ResponseEntity.ok(analysisDTOs);
     }
+
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteAnalysis(@PathVariable Long id) {
         try {
@@ -138,12 +140,14 @@ public class AnalysisController {
             return ResponseEntity.status(e.getStatusCode()).build();
         }
     }
+
     @GetMapping("/{id}")
     public ResponseEntity<AnalysisDTO> getAnalysisById(@PathVariable Long id) {
         Analysis analysis = analysisRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Analiza nu a fost găsită"));
 
         AnalysisDTO analysisDTO = new AnalysisDTO(
+                analysis.getId(),
                 analysis.getUser().getId(),
                 analysis.getTestName(),
                 analysis.getValue(),
@@ -153,9 +157,6 @@ public class AnalysisController {
                 analysis.getTestDate()
         );
 
-
-
         return ResponseEntity.ok(analysisDTO);
     }
-
 }
