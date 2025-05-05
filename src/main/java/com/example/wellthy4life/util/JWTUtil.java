@@ -22,6 +22,7 @@ public class JWTUtil {
                 .findFirst()
                 .orElse("USER");
 
+
         return Jwts.builder()
                 .setSubject(userDetails.getUsername())
                 .claim("role", role) // Adăugăm rolul în payload

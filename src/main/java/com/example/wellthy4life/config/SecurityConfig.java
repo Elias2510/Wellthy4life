@@ -38,11 +38,15 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/auth/**", "/api/users/register").permitAll()
-                        .requestMatchers(HttpMethod.PUT, "/api/analyses/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/analyses/user").hasAnyAuthority("USER", "DOCTOR")
                         .requestMatchers(HttpMethod.GET, "/api/recommendations/user").hasAnyAuthority("USER", "DOCTOR")
-                        .anyRequest().authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/analyses/**").permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/api/admin/**").hasAuthority("ADMIN") // 🔥 esențial
+                        .requestMatchers("/api/admin/**").authenticated()
+
+                        .anyRequest().authenticated() // Fallback
                 )
+
                 .addFilterBefore(jwtAuthenticationFilter(), org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

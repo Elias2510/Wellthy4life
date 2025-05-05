@@ -3,6 +3,11 @@ package com.example.wellthy4life.dto;
 import java.time.LocalDate;
 
 public class UserDTO {
+    private Long id; // adaugă câmpul
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
     private String fullName;
     private String email;
     private String password;
