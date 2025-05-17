@@ -1,6 +1,3 @@
-// Notification-related controller logic has been removed.
-// We'll handle recommendations directly in the dashboard context.
-
 package com.example.wellthy4life.config;
 
 import com.example.wellthy4life.security.JWTAuthenticationFilter;
@@ -38,12 +35,12 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/auth/**", "/api/users/register").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/analyses/user").hasAnyAuthority("USER", "DOCTOR")
-                        .requestMatchers(HttpMethod.GET, "/api/recommendations/user").hasAnyAuthority("USER", "DOCTOR")
+                        .requestMatchers(HttpMethod.GET, "/api/analyses/user").permitAll() // Permite GET pentru oricine
+                        .requestMatchers(HttpMethod.GET, "/api/recommendations/user").permitAll() // Permite GET pentru oricine
                         .requestMatchers(HttpMethod.POST, "/api/support/send").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/support/my-messages").permitAll()
-                        .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
-                        .anyRequest().authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/support/delete/**").permitAll() // DELETE permis pentru oricine
+                        .anyRequest().permitAll() // Orice alt request este permis pentru testare
                 )
                 .addFilterBefore(jwtAuthenticationFilter(), org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
 

@@ -35,20 +35,26 @@ public class SupportMessageController {
     }
 
     @GetMapping("/admin/all")
-    public ResponseEntity<List<SupportMessageDTO>> all() {
+    public ResponseEntity<List<SupportMessageDTO>> getAllMessages() {
         return ResponseEntity.ok(supportMessageService.getMessagesForAdmin());
     }
 
     @GetMapping("/user")
-    public ResponseEntity<List<SupportMessageDTO>> mine(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<List<SupportMessageDTO>> getUserMessages(@RequestHeader("Authorization") String token) {
         String email = jwtUtil.getUsernameFromToken(token.replace("Bearer ", ""));
         User user = userRepository.findByEmail(email);
         return ResponseEntity.ok(supportMessageService.getMessagesByUser(user.getId()));
     }
 
     @PutMapping("/admin/read/{id}")
-    public ResponseEntity<Void> read(@PathVariable Long id) {
+    public ResponseEntity<Void> markAsRead(@PathVariable Long id) {
         supportMessageService.markAsRead(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Void> deleteMessage(@PathVariable Long id) {
+        supportMessageService.deleteMessage(id);
         return ResponseEntity.noContent().build();
     }
 }

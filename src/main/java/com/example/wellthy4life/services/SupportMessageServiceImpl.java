@@ -42,19 +42,33 @@ public class SupportMessageServiceImpl implements SupportMessageService {
 
     @Override
     public List<SupportMessageDTO> getMessagesForAdmin() {
-        return supportMessageRepository.findAll().stream().map(this::convert).collect(Collectors.toList());
+        return supportMessageRepository.findAll().stream()
+                .map(this::convert)
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<SupportMessageDTO> getMessagesByUser(Long userId) {
-        return supportMessageRepository.findByUserId(userId).stream().map(this::convert).collect(Collectors.toList());
+        return supportMessageRepository.findByUserId(userId).stream()
+                .map(this::convert)
+                .collect(Collectors.toList());
     }
 
     @Override
     public void markAsRead(Long id) {
-        SupportMessage msg = supportMessageRepository.findById(id).orElseThrow();
+        SupportMessage msg = supportMessageRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Message not found"));
         msg.setRead(true);
         supportMessageRepository.save(msg);
+    }
+
+    @Override
+    public void deleteMessage(Long id) {
+        if (supportMessageRepository.existsById(id)) {
+            supportMessageRepository.deleteById(id);
+        } else {
+            throw new RuntimeException("Message not found");
+        }
     }
 
     private SupportMessageDTO convert(SupportMessage msg) {
